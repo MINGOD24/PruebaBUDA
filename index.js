@@ -41,13 +41,13 @@ app.get("/addalert/:marketId/:spreadValue", function (req, res) {
   const marketId = req.params.marketId;
   const spreadValue = req.params.spreadValue;
   savedAlerts[marketId] = spreadValue
-  res.status(200).send({messagge: `The alter has been created succesfuly`});
+  res.status(201).send({messagge: `The alter has been created succesfuly`});
 });
 
 app.get("/removealert/:marketId", function (req, res) {
   const marketId = req.params.marketId;
   delete savedAlerts[marketId];
-  res.status(200).send({messagge: `The alter has been removed succesfuly`});
+  res.status(202).send({messagge: `The alter has been removed succesfuly`});
 });
 
 app.get("/spreadalert", async function (req, res) {
