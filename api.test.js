@@ -22,6 +22,10 @@ describe("GET /onespread", () => {
     const response = await request(baseURL).get("/onespread/BTC-COP");
     expect(Object.keys(response.body).length === 1).toBe(true);
   });
+  it("should return 404, marketId not found", async () => {
+    const response = await request(baseURL).get("/onespread/BTCCOP");
+    expect(Object.keys(response.body).length === 1).toBe(true);
+  });
 });
 
 describe("GET /spreadalert", () => {
@@ -33,14 +37,26 @@ describe("GET /spreadalert", () => {
 
 describe("GET /addalert", () => {
   it("should return 200", async () => {
-    const response = await request(baseURL).get("/addalert/marketId/5");
-    expect(response.statusCode).toBe(200);
+    const response = await request(baseURL).get("/addalert/BTC-CLP/1");
+    expect(response.statusCode).toBe(201);
+  });
+  it("should return 404, marketId not found", async () => {
+    const response = await request(baseURL).get("/addalert/USDCCLP/1");
+    expect(response.statusCode).toBe(404);
+  });
+  it("should return 400, spread must be a number", async () => {
+    const response = await request(baseURL).get("/addalert/USDC-CLP/string");
+    expect(response.statusCode).toBe(404);
   });
 });
 
 describe("GET /removealert", () => {
     it("should return 200", async () => {
-      const response = await request(baseURL).get("/removealert/marketId");
-      expect(response.statusCode).toBe(200);
+      const response = await request(baseURL).get("/removealert/BTC-CLP");
+      expect(response.statusCode).toBe(202);
+    });
+    it("should return 404", async () => {
+      const response = await request(baseURL).get("/removealert/USDC-CLP");
+      expect(response.statusCode).toBe(404);
     });
   });
