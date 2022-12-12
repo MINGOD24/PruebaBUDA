@@ -1,5 +1,6 @@
 const express = require("express");
 const axios = require("axios");
+const response = require("koa/lib/response");
 const app = express();
 const baseURL = "https://www.buda.com/api/v2/";
 
@@ -13,6 +14,8 @@ app.get("/onespread/:marketId", function (req, res) {
     result = minAsk - maxBid;
     resultJson = { [marketId]: result };
     res.status(200).send(resultJson);
+  }).catch((err) => {
+    res.status(404).send({"message": `The market ${marketId} was not found`});
   });
 });
 
@@ -37,17 +40,32 @@ app.get("/allspread", async function (req, res) {
   res.status(200).send(resultJson);
 });
 
-app.get("/addalert/:marketId/:spreadValue", function (req, res) {
+app.get("/addalert/:marketId/:spreadValue", async function (req, res) {
   const marketId = req.params.marketId;
   const spreadValue = req.params.spreadValue;
-  savedAlerts[marketId] = spreadValue
-  res.status(201).send({messagge: `The alter has been created succesfuly`});
+  try {
+  const response = await axios.get(baseURL + `markets/${marketId}/ticker`)
+  if (!isNaN(spreadValue)) {
+    savedAlerts[marketId] = spreadValue
+    res.status(201).send({messagge: `The alert has been created succesfuly`});
+  } else {
+    res.status(404).send({messagge: `The spread value must be a number`});
+  }
+  
+  } catch {
+    res.status(404).send({"message": `The market ${marketId} is not in our database`});
+  }
 });
 
 app.get("/removealert/:marketId", function (req, res) {
   const marketId = req.params.marketId;
-  delete savedAlerts[marketId];
-  res.status(202).send({messagge: `The alter has been removed succesfuly`});
+  if (marketId in savedAlerts) {
+    delete savedAlerts[marketId];
+    res.status(202).send({messagge: `The alter has been removed succesfuly`});
+  } else {
+    res.status(404).send({"message": `The market ${marketId} is not in your alerts`});
+  }
+  
 });
 
 app.get("/spreadalert", async function (req, res) {
